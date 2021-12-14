@@ -12,3 +12,7 @@ def get_sorted_event_stats(field_to_sort, last_date, start_date):
 def delete_all_event_stats():
     all_events = EventStats.objects.delete()
     all_events.delete()
+
+
+def get_all_event_stats():
+    return EventStats.objects.all()
