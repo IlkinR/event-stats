@@ -15,7 +15,7 @@ def to_date(date_string, dtformat='%Y-%m-%d'):
     return datetime.strptime(date_string, dtformat)
 
 
-class ListEventsStatsView(ListAPIView):
+class ListEventsStatsSortedView(ListAPIView):
     serializer_class = ListEventStatsSerializer
     model = EventStats
 
@@ -23,18 +23,24 @@ class ListEventsStatsView(ListAPIView):
         # Validating date queries
         start_date = self.request.query_params.get('from')
         last_date = self.request.query_params.get('to')
+        if start_date is None or last_date is None:
+            raise exceptions.ParseError("Date data is not provided!")
         if to_date(start_date) > to_date(start_date):
-            fail_details = "Start date cann't be greater than end date!"
-            raise exceptions.ParseError(fail_details)
+            raise exceptions.ParseError("Start date cann't be greater than end date!")
 
         # Validating field wchich will be used for sorting
         field_to_sort = self.request.query_params.get('sortway')
         if field_to_sort not in AVAILABLE_EVENT_STATS_FIELDS:
             right_fields_msg = ', '.join(AVAILABLE_EVENT_STATS_FIELDS)
-            fail_details = f"Cann't sort by {field_to_sort}. Right ones: {right_fields_msg}"
-            raise exceptions.ParseError(fail_details)
+            raise exceptions.ParseError(f"Cann't sort by {field_to_sort}. Right ones: {right_fields_msg}")
 
         return get_sorted_event_stats(field_to_sort, last_date, start_date)
+
+
+class ListAllEventsStatsView(ListAPIView):
+    serializer_class = ListEventStatsSerializer
+    model = EventStats
+    queryset = get_all_event_stats()
 
 
 class CreateEventStatsView(CreateAPIView):
@@ -48,4 +54,4 @@ class DeleteEventStatsView(UpdateAPIView):
 
     def delete(self, request):
         delete_all_event_stats()
-        return Response('Stats deleted!', status=status.HTTP_200_OK)
+        return Response({'msg': 'Stats deleted!'}, status=status.HTTP_200_OK)
