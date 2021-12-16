@@ -11,8 +11,13 @@
     ```bash
     sudo docker-compose exec web python manage.py migrate
     ```
+    
+3. Запускаем тесты 
+    ```bash
+    sudo docker-compose exec web python manage.py test
+    ```
 
-3. Запускаем проект
+4. Запускаем проект
     ```bash
     sudo docker-compose up
     ```
